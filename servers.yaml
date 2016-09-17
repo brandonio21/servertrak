@@ -5,4 +5,5 @@ servers:
 
 users: 
     - username: 
-      servers: *.ucsd.edu
+      servers: 
+      - "*.ucsd.edu"
