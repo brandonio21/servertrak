@@ -2,11 +2,9 @@ class Server:
 
     def __init__(self, hostname):
         self.hostname = hostname
+    
+    def execute_command_and_get_output(self, proxy, user, command:str):
+        return proxy.execute_command_and_get_output(user, self.hostname, command)
 
-    def get_command_output(self, proxy, command: str):
-        """ Sends a command to the server and returns the output 
-
-        command: list<str> the command to execute, where the first element
-                 is usually the commandname and the rest are args
-        """
-        return proxy.get_command_output(self.hostname, command)
+    def execute_script_and_get_output(self, proxy, user, script_path:str):
+        return proxy.execute_script_and_get_output(user, self.hostname, script_path)

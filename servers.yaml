@@ -4,6 +4,6 @@ servers:
     - ieng6-252.ucsd.edu
 
 users: 
-    - username: 
+    - username: bmilton
       servers: 
-      - "*.ucsd.edu"
+        - "*.ucsd.edu"

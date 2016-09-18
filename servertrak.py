@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import argparse
-import fileinput
 import sys
 import contextlib
 import yaml
@@ -14,7 +13,7 @@ def main():
     argument_parser = argparse.ArgumentParser(
         description="Replicate commands across servers")
 
-    argument_parser.add_argument("commands")
+    argument_parser.add_argument("command")
 
     # Config files
     argument_parser.add_argument('--config', type=str, nargs=1, default='servers.yaml')
@@ -22,10 +21,12 @@ def main():
     # Output
     argument_parser.add_argument('-output', type=str, nargs=1, default='-')
 
+    # Script
+    argument_parser.add_argument('--script', action='store_true')
+
     # Proxy types
     proxy_parser = argument_parser.add_mutually_exclusive_group()
     proxy_parser.add_argument('--ssh', action='store_true', default=True)
-
 
     args = argument_parser.parse_args()
 
@@ -33,14 +34,7 @@ def main():
         proxy = SSHProxy()
 
     servers, users = parse_config(args.config)
-    execute_command(proxy, servers, users, construct_input(), args.output)
-
-def construct_input() -> str:
-    full_input = ""
-    for line in fileinput.input():
-        full_input += line
-
-    return full_input
+    execute_command(proxy, servers, users, args.command, args.script, args.output)
 
 def parse_config(config_path):
     with open(config_path) as config_file:
@@ -57,11 +51,14 @@ def parse_config(config_path):
 
     return (server_list, user_list)
 
-def execute_command(proxy, servers: list, users: list, command:str, output:str):
+def execute_command(proxy, servers: list, users: list, command:str, is_script:bool, output:str):
     with flexio.open_io(output) as output_stream:
         for server in servers:
             for user in users:
-                output_stream.write(server.get_command_output(proxy, command))
+                if is_script:
+                    output_stream.write(server.execute_script_and_get_output(proxy, user, command))
+                else:
+                    output_stream.write(server.execute_command_and_get_output(proxy, user, command))
 
 if __name__ == "__main__":
     main()
