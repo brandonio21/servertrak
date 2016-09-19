@@ -4,7 +4,7 @@ from contextlib import contextmanager
 @contextmanager
 def open_io(filename=None):
     if filename and filename != '-':
-        file_handler = open(filename)
+        file_handler = open(filename, 'w+')
     else:
         file_handler = sys.stdout
 

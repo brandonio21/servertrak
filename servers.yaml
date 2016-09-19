@@ -1,6 +1,5 @@
 servers:
     - ieng6-250.ucsd.edu
-    - ieng6-251.ucsd.edu
     - ieng6-252.ucsd.edu
 
 users: 
