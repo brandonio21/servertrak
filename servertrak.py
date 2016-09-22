@@ -8,6 +8,7 @@ from utils import flexio
 from common.server import Server
 from common.user import User
 from common.output.json import JSONOutput
+from common.output.text import TextOutput
 
 def main():
     argument_parser = argparse.ArgumentParser(
@@ -20,7 +21,7 @@ def main():
 
     # Output
     argument_parser.add_argument('-output', type=str, default='-')
-    argument_parser.add_argument('--output-type', type=str, nargs=1, default='json', dest='outputtype')
+    argument_parser.add_argument('--output-type', type=str, default='json', dest='outputtype')
 
     # Script
     argument_parser.add_argument('--script', action='store_true')
@@ -33,9 +34,15 @@ def main():
 
     if args.ssh:
         proxy = SSHProxy()
+    else:
+        raise ValueError('Invalid proxy type')
 
     if args.outputtype == 'json':
         output = JSONOutput()
+    elif args.outputtype == 'text':
+        output = TextOutput()
+    else:
+        raise ValueError('Invalid value for outputtype {}'.format(args.outputtype))
 
     servers, users = parse_config(args.config)
     execute_command(proxy, servers, users, args.command, args.script, args.output, output)
