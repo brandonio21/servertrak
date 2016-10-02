@@ -97,12 +97,15 @@ def get_available_servers(servers, host_discovery_module):
 def execute_command(proxy, servers: list, users: list, command:str, is_script:bool, output:str, output_builder):
     for server in servers:
         for user in users:
-            if is_script:
-                server_output = server.execute_script_and_get_output(proxy, user, command)
-            else:
-                server_output = server.execute_command_and_get_output(proxy, user, command)
+            try:
+                if is_script:
+                    server_output = server.execute_script_and_get_output(proxy, user, command)
+                else:
+                    server_output = server.execute_command_and_get_output(proxy, user, command)
 
-            output_builder.add_output(user, server, server_output)
+                output_builder.add_output(user, server, server_output)
+            except Exception as e:
+                output_builder.add_err(user, server, str(e))
 
     with flexio.open_io(output) as output_stream:
         output_stream.write(output_builder.build_output())
