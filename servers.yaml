@@ -2,7 +2,10 @@ servers:
     - ieng6-250.ucsd.edu
     - ieng6-252.ucsd.edu
 
+discover_servers:
+    - 'ieng6(-2[5-9][0-9])?\.ucsd\.edu'
+
 users: 
     - username: bmilton
       servers: 
-        - "*.ucsd.edu"
+        - '*.ucsd.edu'

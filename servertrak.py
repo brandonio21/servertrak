@@ -9,6 +9,7 @@ from common.server import Server
 from common.user import User
 from common.output.json import JSONOutput
 from common.output.text import TextOutput
+from exrex import exrex
 
 def main():
     argument_parser = argparse.ArgumentParser(
@@ -54,13 +55,26 @@ def parse_config(config_path):
     server_list = []
     user_list = []
     if config:
-        for server in config['servers']:
-            server_list.append(Server(server))
+        hostname_set = set()
+        for hostname in config['servers']:
+            hostname_set.add(hostname)
+
+        if 'discover_servers' in config:
+            for hostname_pattern in config['discover_servers']:
+                for hostname in generate_servers_from_regex(hostname_pattern):
+                    hostname_set.add(hostname)
+
+        for hostname in hostname_set:
+            server_list.append(Server(hostname))
 
         for user in config['users']:
             user_list.append(User(user['username'], user['servers']))
 
     return (server_list, user_list)
+
+def generate_servers_from_regex(server_regex):
+    for server in exrex.generate(server_regex):
+        yield server
 
 def execute_command(proxy, servers: list, users: list, command:str, is_script:bool, output:str, output_builder):
     for server in servers:
