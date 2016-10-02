@@ -66,8 +66,9 @@ def parse_config(config_path):
     user_list = []
     if config:
         hostname_set = set()
-        for hostname in config['servers']:
-            hostname_set.add(hostname)
+        if 'servers' in config:
+            for hostname in config['servers']:
+                hostname_set.add(hostname)
 
         if 'discover_servers' in config:
             for hostname_pattern in config['discover_servers']:
