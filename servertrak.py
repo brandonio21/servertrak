@@ -3,13 +3,14 @@ import argparse
 import sys
 import contextlib
 import yaml
+from exrex import exrex
 from proxies.ssh import SSHProxy
 from utils import flexio
 from common.server import Server
 from common.user import User
 from common.output.json import JSONOutput
 from common.output.text import TextOutput
-from exrex import exrex
+from host_discovery.ping import PingHostDiscoveryModule
 
 def main():
     argument_parser = argparse.ArgumentParser(
@@ -31,6 +32,9 @@ def main():
     proxy_parser = argument_parser.add_mutually_exclusive_group()
     proxy_parser.add_argument('--ssh', action='store_true', default=True)
 
+    # Host Discovery
+    argument_parser.add_argument('--discovery', default='ping')
+
     args = argument_parser.parse_args()
 
     if args.ssh:
@@ -45,8 +49,14 @@ def main():
     else:
         raise ValueError('Invalid value for outputtype {}'.format(args.outputtype))
 
+    if args.discovery == 'ping':
+        host_discovery_module = PingHostDiscoveryModule()
+    else:
+        raise ValueError('Invalid value for discovery {}'.format(args.discovery))
+
     servers, users = parse_config(args.config)
-    execute_command(proxy, servers, users, args.command, args.script, args.output, output)
+    available_servers = get_available_servers(servers, host_discovery_module)
+    execute_command(proxy, available_servers, users, args.command, args.script, args.output, output)
 
 def parse_config(config_path):
     with open(config_path) as config_file:
@@ -75,6 +85,14 @@ def parse_config(config_path):
 def generate_servers_from_regex(server_regex):
     for server in exrex.generate(server_regex):
         yield server
+
+def get_available_servers(servers, host_discovery_module):
+    available_servers = []
+    for server in servers:
+        if server.is_available(host_discovery_module):
+            available_servers.append(server)
+
+    return available_servers
 
 def execute_command(proxy, servers: list, users: list, command:str, is_script:bool, output:str, output_builder):
     for server in servers:
