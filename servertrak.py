@@ -56,7 +56,7 @@ def main():
 
     servers, users = parse_config(args.config)
     available_servers = get_available_servers(servers, host_discovery_module)
-    execute_command(proxy, available_servers, users, args.command, args.script, args.output, output)
+    execute_command_and_write(proxy, available_servers, users, args.command, args.script, args.output, output)
 
 def parse_config(config_path):
     with open(config_path) as config_file:
@@ -95,7 +95,7 @@ def get_available_servers(servers, host_discovery_module):
 
     return available_servers
 
-def execute_command(proxy, servers: list, users: list, command:str, is_script:bool, output:str, output_builder):
+def execute_command(proxy, servers: list, users: list, command: str, is_script: bool, output_builder):
     for server in servers:
         for user in users:
             try:
@@ -108,8 +108,14 @@ def execute_command(proxy, servers: list, users: list, command:str, is_script:bo
             except Exception as e:
                 output_builder.add_err(user, server, str(e))
 
+    return output_builder.build_output()
+
+
+def execute_command_and_write(proxy, servers: list, users: list, command:str, is_script:bool, output:str, output_builder):
+    results = execute_command(proxy, servers, users, command, is_script, output_builder)
+
     with flexio.open_io(output) as output_stream:
-        output_stream.write(output_builder.build_output())
+        output_stream.write(results)
 
 if __name__ == "__main__":
     main()
