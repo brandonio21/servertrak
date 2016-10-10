@@ -2,7 +2,7 @@ import fnmatch
 
 class User:
 
-    def __init__(self, username, servers:list):
+    def __init__(self, username, servers):
         self.username = username
         self.servers = servers
 

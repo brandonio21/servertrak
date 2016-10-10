@@ -8,7 +8,7 @@ from proxies.ssh import SSHProxy
 from utils import flexio
 from common.server import Server
 from common.user import User
-from common.output.json import JSONOutput
+from common.output.jsonoutput import JSONOutput
 from common.output.text import TextOutput
 from host_discovery.ping import PingHostDiscoveryModule
 
@@ -95,7 +95,7 @@ def get_available_servers(servers, host_discovery_module):
 
     return available_servers
 
-def execute_command(proxy, servers: list, users: list, command: str, is_script: bool, output_builder):
+def execute_command(proxy, servers, users, command, is_script, output_builder):
     for server in servers:
         for user in users:
             try:
@@ -111,7 +111,7 @@ def execute_command(proxy, servers: list, users: list, command: str, is_script: 
     return output_builder.build_output()
 
 
-def execute_command_and_write(proxy, servers: list, users: list, command:str, is_script:bool, output:str, output_builder):
+def execute_command_and_write(proxy, servers, users, command, is_script, output, output_builder):
     results = execute_command(proxy, servers, users, command, is_script, output_builder)
 
     with flexio.open_io(output) as output_stream:
