@@ -6,7 +6,7 @@ import yaml
 import click
 import exrex
 from proxies import ALL_PROXIES
-from common.output import ALL_OUTPUT
+from output import ALL_OUTPUT
 from host_discovery import ALL_DISCOVERY_MODULES
 from servertraker import ServerTraker
 from common.server import Server
