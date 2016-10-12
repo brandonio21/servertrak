@@ -2,6 +2,9 @@ class TextOutput:
     def __init__(self):
         self.output = []
 
+    def clear_output(self):
+        self.output = []
+        
     def add_output(self, user, server, output):
         output_str = '{} ({}): {}'.format(server.hostname, user.username, 
                                           output)

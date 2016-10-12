@@ -3,60 +3,49 @@ import argparse
 import sys
 import contextlib
 import yaml
-from exrex import exrex
-from proxies.ssh import SSHProxy
-from utils import flexio
+import click
+import exrex
+from proxies import ALL_PROXIES
+from common.output import ALL_OUTPUT
+from host_discovery import ALL_DISCOVERY_MODULES
+from servertraker import ServerTraker
 from common.server import Server
 from common.user import User
-from common.output.jsonoutput import JSONOutput
-from common.output.text import TextOutput
-from host_discovery.ping import PingHostDiscoveryModule
 
-def main():
-    argument_parser = argparse.ArgumentParser(
-        description="Replicate commands across servers")
-
-    argument_parser.add_argument("command")
-
-    # Config files
-    argument_parser.add_argument('--config', type=str, nargs=1, default='servers.yaml')
-
-    # Output
-    argument_parser.add_argument('-output', type=str, default='-')
-    argument_parser.add_argument('--output-type', type=str, default='json', dest='outputtype')
-
-    # Script
-    argument_parser.add_argument('--script', action='store_true')
-
-    # Proxy types
-    proxy_parser = argument_parser.add_mutually_exclusive_group()
-    proxy_parser.add_argument('--ssh', action='store_true', default=True)
-
-    # Host Discovery
-    argument_parser.add_argument('--discovery', default='ping')
-
-    args = argument_parser.parse_args()
-
-    if args.ssh:
-        proxy = SSHProxy()
+@click.command()
+@click.argument('command', type=click.File('rb'), default='-')
+@click.option('--output', type=click.File('wb'), default='-')
+@click.option('--config', type=click.Path(exists=True), default='servers.yaml')
+@click.option('--proxy', default='ssh')
+@click.option('--discovery', default='ping')
+@click.option('--format', default='text')
+def main(command, output, config, proxy, discovery, format):
+    if proxy in ALL_PROXIES:
+        proxy = ALL_PROXIES[proxy]()
     else:
         raise ValueError('Invalid proxy type')
-
-    if args.outputtype == 'json':
-        output = JSONOutput()
-    elif args.outputtype == 'text':
-        output = TextOutput()
+        
+    if discovery in ALL_DISCOVERY_MODULES:
+        discovery_module = ALL_DISCOVERY_MODULES[discovery]()
     else:
-        raise ValueError('Invalid value for outputtype {}'.format(args.outputtype))
-
-    if args.discovery == 'ping':
-        host_discovery_module = PingHostDiscoveryModule()
+        raise ValueError('Invalid discovery module')
+        
+    if format in ALL_OUTPUT:
+        format = ALL_OUTPUT[format]()
     else:
-        raise ValueError('Invalid value for discovery {}'.format(args.discovery))
+        raise ValueError('Invalid output method')
+        
+    servertraker = ServerTraker(
+        [discovery_module], format, proxy
+    )
 
-    servers, users = parse_config(args.config)
-    available_servers = get_available_servers(servers, host_discovery_module)
-    execute_command_and_write(proxy, available_servers, users, args.command, args.script, args.output, output)
+    servers, users = parse_config(config)
+    available_servers = servertraker.get_available_servers(servers)
+    results = servertraker.execute_command(
+        available_servers, users, command.read().decode('utf-8')
+    )
+    
+    output.write(bytes(results, 'utf-8'))
 
 def parse_config(config_path):
     with open(config_path) as config_file:
@@ -86,36 +75,6 @@ def parse_config(config_path):
 def generate_servers_from_regex(server_regex):
     for server in exrex.generate(server_regex):
         yield server
-
-def get_available_servers(servers, host_discovery_module):
-    available_servers = []
-    for server in servers:
-        if server.is_available(host_discovery_module):
-            available_servers.append(server)
-
-    return available_servers
-
-def execute_command(proxy, servers, users, command, is_script, output_builder):
-    for server in servers:
-        for user in users:
-            try:
-                if is_script:
-                    server_output = server.execute_script_and_get_output(proxy, user, command)
-                else:
-                    server_output = server.execute_command_and_get_output(proxy, user, command)
-
-                output_builder.add_output(user, server, server_output)
-            except Exception as e:
-                output_builder.add_err(user, server, str(e))
-
-    return output_builder.build_output()
-
-
-def execute_command_and_write(proxy, servers, users, command, is_script, output, output_builder):
-    results = execute_command(proxy, servers, users, command, is_script, output_builder)
-
-    with flexio.open_io(output) as output_stream:
-        output_stream.write(results)
 
 if __name__ == "__main__":
     main()

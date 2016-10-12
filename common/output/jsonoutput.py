@@ -4,6 +4,9 @@ class JSONOutput:
     def __init__(self):
         self.output = []
 
+    def clear_output(self):
+        self.output = []
+        
     def add_output(self, user, server, output, success=1):
         self.output.append({
             'server' : server.hostname,

@@ -9,7 +9,3 @@ class Server:
     def execute_command_and_get_output(self, proxy, user, command):
         if user.can_execute_on_server(self):
             return proxy.execute_command_and_get_output(user, self.hostname, command)
-
-    def execute_script_and_get_output(self, proxy, user, script_path):
-        if user.can_execute_on_server(self):
-            return proxy.execute_script_and_get_output(user, self.hostname, script_path)
