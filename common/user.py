@@ -1,5 +1,6 @@
 import fnmatch
 
+
 class User:
 
     def __init__(self, username, servers):

@@ -1,5 +1,6 @@
 from subprocess import Popen, PIPE
 
+
 class PingHostDiscoveryModule:
 
     def is_host_available(self, hostname):

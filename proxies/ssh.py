@@ -1,5 +1,6 @@
 from subprocess import Popen, PIPE
 
+
 class SSHProxy:
     def execute_command_and_get_output(self, user, hostname, command):
         p = Popen(['ssh', '{}@{}'.format(user.username, hostname), command],

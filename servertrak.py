@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
-import argparse
-import sys
-import contextlib
 import yaml
 import click
 import exrex
 from proxies import ALL_PROXIES
-from output import ALL_OUTPUT
+from format import ALL_OUTPUT
 from host_discovery import ALL_DISCOVERY_MODULES
 from servertraker import ServerTraker
 from common.server import Server
 from common.user import User
+
 
 @click.command()
 @click.argument('command', type=click.File('rb'), default='-')
@@ -24,17 +22,17 @@ def main(command, output, config, proxy, discovery, format):
         proxy = ALL_PROXIES[proxy]()
     else:
         raise ValueError('Invalid proxy type')
-        
+
     if discovery in ALL_DISCOVERY_MODULES:
         discovery_module = ALL_DISCOVERY_MODULES[discovery]()
     else:
         raise ValueError('Invalid discovery module')
-        
+
     if format in ALL_OUTPUT:
         format = ALL_OUTPUT[format]()
     else:
         raise ValueError('Invalid output method')
-        
+
     servertraker = ServerTraker(
         [discovery_module], format, proxy
     )
@@ -44,8 +42,9 @@ def main(command, output, config, proxy, discovery, format):
     results = servertraker.execute_command(
         available_servers, users, command.read().decode('utf-8')
     )
-    
+
     output.write(bytes(results, 'utf-8'))
+
 
 def parse_config(config_path):
     with open(config_path) as config_file:
@@ -71,6 +70,7 @@ def parse_config(config_path):
             user_list.append(User(user['username'], user['servers']))
 
     return (server_list, user_list)
+
 
 def generate_servers_from_regex(server_regex):
     for server in exrex.generate(server_regex):
