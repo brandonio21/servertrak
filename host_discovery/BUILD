@@ -1,7 +1,7 @@
 python_library(
   name="hostdiscovery",
   sources = [
-    "__init__.py",
+    "host_discovery_modules.py",
     "ping.py",
   ],
 )

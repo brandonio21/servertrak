@@ -1,6 +1,7 @@
 __pycache__
 .cache/
 .pants.d/
+.pants.workdir.file_lock
 dist/
 venv
 *.swp

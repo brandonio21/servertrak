@@ -1,7 +1,7 @@
 python_library(
   name="proxies",
   sources = [
-    "__init__.py",
+    "proxies.py",
     "ssh.py",
   ],
 )
