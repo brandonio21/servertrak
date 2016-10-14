@@ -1,5 +1,5 @@
 python_library(
-  name="hostdiscovery",
+  name="host_discovery",
   sources = [
     "host_discovery_modules.py",
     "ping.py",
