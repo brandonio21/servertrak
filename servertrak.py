@@ -2,12 +2,10 @@
 import yaml
 import click
 import exrex
-from proxies import ALL_PROXIES
-from format import ALL_OUTPUT
-from host_discovery import ALL_DISCOVERY_MODULES
 from servertraker import ServerTraker
-from common.server import Server
-from common.user import User
+from server import Server
+from user import User
+import ALL_PROXIES
 
 
 @click.command()

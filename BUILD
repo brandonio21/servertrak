@@ -1,8 +1,21 @@
 python_library (
+  name="servertraklib",
+  sources= [
+    "servertraker.py",
+  ],
+)
+
+python_binary (
   name="servertrak",
-  sources=rglobs('*.py'),
+  source = "servertrak.py",
   dependencies = [
-    '//server/servertrak/3rdparty:PyYAML',
-    '//server/servertrak/3rdparty:exrex',
+    ":servertraklib",
+    "//common:common",
+    "//host_discovery:hostdiscovery",
+    "//format:format",
+    "//proxies:proxies",
+    "//3rdparty:exrex",
+    "//3rdparty:PyYAML",
+    "//3rdparty:click",
   ],
 )

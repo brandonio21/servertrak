@@ -1,5 +1,5 @@
-from proxies.ssh import SSHProxy
+from ssh import SSHProxy
 
-ALL_PROXIES = {
-    'ssh': SSHProxy,
-}
+ALL_PROXIES = [
+  SSHProxy(),
+]
