@@ -4,10 +4,10 @@ import click
 import exrex
 from proxies import ALL_PROXIES
 from format import ALL_OUTPUT
-from host_discovery_modules import ALL_DISCOVERY_MODULES
+from host_discovery import ALL_DISCOVERY_MODULES
 from servertraker import ServerTraker
-from server import Server
-from user import User
+from common.server import Server
+from common.user import User
 
 
 @click.command()

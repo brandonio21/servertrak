@@ -1,7 +1,7 @@
 python_library(
   name="format",
   sources = [
-    "format.py",
+    "__init__.py",
     "jsonoutput.py",
     "textoutput.py",
   ],
