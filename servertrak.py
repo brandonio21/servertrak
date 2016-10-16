@@ -43,7 +43,7 @@ def main(command, output, config, proxy, discovery, format):
         available_servers, users, command.read().decode('utf-8')
     )
 
-    output.write(bytes(results, 'utf-8'))
+    output.write(results)
 
 
 def parse_config(config_path):
